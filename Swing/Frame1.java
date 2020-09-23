@@ -1,26 +1,32 @@
-package test0827;
-
-import java.awt.Dimension;
-import java.awt.FlowLayout;
-
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 
-public class Frame {
+//フレームを作成し、ラベルとボタンを任意の位置に配置する。
+public class Frame1 {
 	public static void main(String[] args) {
-		//System.out.println("test");
-		JFrame frame = new JFrame("test");
+		Frame1 tf1 = new Frame1();
+		tf1.run();
+	}
+	public void run() {
+		JFrame frame = new JFrame("テスト");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);//閉じるボタンを押した時に終了する
-		frame.setSize(800, 900);//画面サイズ
-		frame.setLocation(1100, 50);//画面の立ち上がり位置
-		//レイアウトを設定
-		frame.setLayout(new FlowLayout());
+		frame.setSize(700, 800);//画面サイズwh
+		frame.setLocation(1150, 100);//画面の立ち上がり位置
+		JPanel p = new JPanel();
+		frame.setContentPane(p);
+		p.setLayout(null);
+		JLabel label1= new JLabel("ラベル");
+		label1.setBounds(20, 20, 100, 50);
 		JButton button1 = new JButton("ボタン");
+		button1.setBounds(20, 80, 100, 50);//配置x,配置y,サイズwidth,サイズheight
 		//ボタンを押した時の処理
 		button1.addActionListener(e -> {
 			System.out.println("ボタンを押しました。");
 		});
-		frame.add(button1);
+		p.add(label1);
+		p.add(button1);
 		frame.setVisible(true);//画面に見えるようにする
 	}
 }
