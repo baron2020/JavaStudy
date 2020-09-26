@@ -1,3 +1,5 @@
+package swing0922;
+
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -9,74 +11,73 @@ public class Calculator {
 		Calculator den = new Calculator();
 		den.run();
 	}
-
 	public void run() {
-		JFrame frame = new JFrame("テスト");
+		JFrame frame = new JFrame("シンプル電卓");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);//閉じるボタンを押した時に終了する
 		frame.setSize(700, 800);//画面サイズwh
 		frame.setLocation(1150, 100);//画面の立ち上がり位置
 		JPanel p = new JPanel();
 		frame.setContentPane(p);
 		p.setLayout(null);
-		JLabel label1 = new JLabel("計算機");
-		label1.setBounds(30, 20, 390, 50);
-		//ボタン20種類
-		JButton b1 = new JButton("（");
-		JButton b2 = new JButton("）");
-		JButton b3 = new JButton("％");
-		JButton b4 = new JButton("ＡＣ");
-		JButton b5 = new JButton("７");
-		JButton b6 = new JButton("８");
-		JButton b7 = new JButton("９");
-		JButton b8 = new JButton("÷");
-		JButton b9 = new JButton("４");
-		JButton b10 = new JButton("５");
-		JButton b11 = new JButton("６");
-		JButton b12 = new JButton("×");
-		JButton b13 = new JButton("１");
-		JButton b14 = new JButton("２");
-		JButton b15 = new JButton("３");
-		JButton b16 = new JButton("－");
+		//計算表示ラベル
+		JLabel label1 = new JLabel("表示画面");
 		//配置x,配置y,サイズwidth,サイズheight
-		b1.setBounds(30, 80, 120, 80);
-		b2.setBounds(150, 80, 120, 80);
-		b3.setBounds(270, 80, 120, 80);
-		b4.setBounds(390, 80, 120, 80);
-		b5.setBounds(30, 160, 120, 80);
-		b6.setBounds(150, 160, 120, 80);
-		b7.setBounds(270, 160, 120, 80);
-		b8.setBounds(390, 160, 120, 80);
-		b9.setBounds(30, 240, 120, 80);
-		b10.setBounds(150, 240, 120, 80);
-		b11.setBounds(270, 240, 120, 80);
-		b12.setBounds(390, 240, 120, 80);
-		b13.setBounds(30, 320, 120, 80);
-		b14.setBounds(150, 320, 120, 80);
-		b15.setBounds(270, 320, 120, 80);
-		b16.setBounds(390, 320, 120, 80);
-		//ボタンを押した時の処理
-		b1.addActionListener(e -> {
-			System.out.println(b1.getText() + "ボタンを押しました。");
-			label1.setText(b1.getText());
-		});
-		p.add(label1);
-		p.add(b1);
-		p.add(b2);
-		p.add(b3);
-		p.add(b4);
-		p.add(b5);
-		p.add(b6);
-		p.add(b7);
-		p.add(b8);
-		p.add(b9);
-		p.add(b10);
-		p.add(b11);
-		p.add(b12);
-		p.add(b13);
-		p.add(b14);
-		p.add(b15);
-		p.add(b16);
+		int dispWidth = 480;//表示画面の横幅
+		int dispHeight = 80;//ボタンの高さ
+		int dispMarginX = 110;//余白X
+		int dispMarginY = 70;//余白Y
+		label1.setBounds(dispMarginX, dispMarginY, dispWidth, dispHeight);
+		//ボタンのテキスト
+		String[] s = { "Ｃ", "√", "％", "÷", "７", "８", "９", "×", "４", "５", "６", "－",
+				"１", "２", "３", "＋", "０", "００", "．", "＝" };
+		JButton[] JButtonArray = new JButton[20];
+		//ボタン20種類のインスタンス生成とイベントの設定
+		for (int i = 0; i < JButtonArray.length; i++) {
+			JButtonArray[i] = new JButton(s[i]);
+			String temp = s[i];//ラベルの文字列
+			//ボタンを押した時の処理
+			JButtonArray[i].addActionListener(e -> {
+				System.out.println(temp + "ボタンを押しました。");
+				label1.setText(temp);
+			});
+		}
 
+		int bWidth = 120;//ボタンの横幅
+		int bHeight = 80;//ボタンの高さ
+		int bMarginX = 110;//余白X
+		int bMarginY = 150;//余白Y
+
+		//配置x,配置y,サイズwidth,サイズheight
+		//ボタン一段目
+		JButtonArray[0].setBounds(bMarginX, bMarginY, bWidth, bHeight);
+		JButtonArray[1].setBounds(230, bMarginY, bWidth, bHeight);
+		JButtonArray[2].setBounds(350, bMarginY, bWidth, bHeight);
+		JButtonArray[3].setBounds(470, bMarginY, bWidth, bHeight);
+		//ボタン二段目
+		JButtonArray[4].setBounds(bMarginX, 230, bWidth, bHeight);
+		JButtonArray[5].setBounds(230, 230, 120, 80);
+		JButtonArray[6].setBounds(350, 230, 120, 80);
+		JButtonArray[7].setBounds(470, 230, 120, 80);
+		//ボタン三段目
+		JButtonArray[8].setBounds(bMarginX, 310, 120, 80);
+		JButtonArray[9].setBounds(230, 310, 120, 80);
+		JButtonArray[10].setBounds(350, 310, 120, 80);
+		JButtonArray[11].setBounds(470, 310, 120, 80);
+		//ボタン四段目
+		JButtonArray[12].setBounds(bMarginX, 390, 120, 80);
+		JButtonArray[13].setBounds(230, 390, 120, 80);
+		JButtonArray[14].setBounds(350, 390, 120, 80);
+		JButtonArray[15].setBounds(470, 390, 120, 80);
+		//ボタン五段目
+		JButtonArray[16].setBounds(bMarginX, 470, 120, 80);
+		JButtonArray[17].setBounds(230, 470, 120, 80);
+		JButtonArray[18].setBounds(350, 470, 120, 80);
+		JButtonArray[19].setBounds(470, 470, 120, 80);
+
+		p.add(label1);//ラベルの配置
+		for (int i = 0; i < JButtonArray.length; i++) {
+			p.add(JButtonArray[i]);//ボタンの配置
+		}
 		frame.setVisible(true);//画面に見えるようにする
 	}
 }
