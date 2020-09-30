@@ -1,16 +1,73 @@
 package swing0922;
 
+import java.awt.Font;
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 public class Calculator {
-	//フレームを作成し、ラベルとボタンを任意の位置に配置する。
+	//シンプル電卓
 	public static void main(String[] args) {
 		Calculator den = new Calculator();
 		den.run();
 	}
+
+	public int existSymbolIndex(String target) {
+		String check1 = "＋";
+		String check2 = "－";
+		String check3 = "×";
+		String check4 = "÷";
+		int minimumExist = 8635;
+		if (target.indexOf(check1) != -1) {
+			minimumExist = target.indexOf(check1);
+			System.out.println(minimumExist + "+");
+		}
+		if ((target.indexOf(check2) != -1) & (target.indexOf(check2) < minimumExist)) {
+			minimumExist = target.indexOf(check2);
+			System.out.println(minimumExist + "-");
+		}
+		if ((target.indexOf(check3) != -1) & (target.indexOf(check3) < minimumExist)) {
+			minimumExist = target.indexOf(check3);
+			System.out.println(minimumExist + "*");
+		}
+		if ((target.indexOf(check4) != -1) & (target.indexOf(check4) < minimumExist)) {
+			minimumExist = target.indexOf(check4);
+			System.out.println(minimumExist + "%");
+		}
+		//System.out.println(minimumExist + "番目に存在します");
+		return minimumExist;
+	}
+
+	public void equalResult(JLabel target) {
+		String dispTemp = target.getText();
+		List<String>sikiTemp=new ArrayList<String>();
+		System.out.println("計算式" + dispTemp);
+		System.out.println("計算式の長さ" + dispTemp.length());
+		int existIndex = existSymbolIndex(dispTemp);//計算記号が最小の何番目にあるか？
+
+		if (existIndex == 8635) {
+			System.out.println("見つかりませんでした");
+			target.setText(dispTemp);
+			return;
+		}else {
+			//int siki1=Integer.parseInt(dispTemp.substring(0,checkIndex));
+			String siki1=dispTemp.substring(0,existIndex);
+			sikiTemp.add(siki1);
+			System.out.println("式①"+sikiTemp.get(0));//式の一項
+			sikiTemp.add(dispTemp.substring(existIndex,existIndex+1));
+			System.out.println(existIndex + "番目に計算記号は存在します");
+			System.out.println("式②"+sikiTemp.get(1));
+			sikiTemp.add(dispTemp.substring(existIndex+1,dispTemp.length()));
+			System.out.println("式③"+sikiTemp.get(2));//残りの式
+		}
+		//System.out.println(str1.substring(0,3));//二文字切り取り
+		target.setText(dispTemp);
+	}
+
 	public void run() {
 		JFrame frame = new JFrame("シンプル電卓");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);//閉じるボタンを押した時に終了する
@@ -20,7 +77,8 @@ public class Calculator {
 		frame.setContentPane(p);
 		p.setLayout(null);
 		//計算表示ラベル
-		JLabel label1 = new JLabel("表示画面");
+		JLabel label1 = new JLabel();//"表示画面"
+		label1.setFont(new Font("MSゴシック", Font.PLAIN, 24));
 		//配置x,配置y,サイズwidth,サイズheight
 		int dispWidth = 480;//表示画面の横幅
 		int dispHeight = 80;//ボタンの高さ
@@ -34,14 +92,24 @@ public class Calculator {
 		//ボタン20種類のインスタンス生成とイベントの設定
 		for (int i = 0; i < JButtonArray.length; i++) {
 			JButtonArray[i] = new JButton(s[i]);
-			String temp = s[i];//ラベルの文字列
+			String temp = s[i];//ラベルの文字
+			JButtonArray[i].setFont(new Font("MSゴシック", Font.PLAIN, 24));
 			//ボタンを押した時の処理
 			JButtonArray[i].addActionListener(e -> {
 				System.out.println(temp + "ボタンを押しました。");
-				label1.setText(temp);
+				if (temp.equals("Ｃ")) {
+					label1.setText("");
+					return;
+				}
+				if (temp.equals("＝")) {
+					equalResult(label1);
+					return;
+				}
+				//System.out.println(label1.getText()+"です");
+				String disp = label1.getText() + temp;
+				label1.setText(disp);
 			});
 		}
-
 		int bWidth = 120;//ボタンの横幅
 		int bHeight = 80;//ボタンの高さ
 		int bMarginX = 110;//余白X
