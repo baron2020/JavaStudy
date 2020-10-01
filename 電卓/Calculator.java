@@ -12,8 +12,8 @@ import javax.swing.JPanel;
 public class Calculator {
 	//シンプル電卓
 	public static void main(String[] args) {
-		Calculator den = new Calculator();
-		den.run();
+		Calculator dentaku = new Calculator();
+		dentaku.run();
 	}
 
 	public void run() {
