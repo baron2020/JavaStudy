@@ -16,58 +16,6 @@ public class Calculator {
 		den.run();
 	}
 
-	public int existSymbolIndex(String target) {
-		String check1 = "＋";
-		String check2 = "－";
-		String check3 = "×";
-		String check4 = "÷";
-		int minimumExist = 8635;
-		if (target.indexOf(check1) != -1) {
-			minimumExist = target.indexOf(check1);
-			System.out.println(minimumExist + "+");
-		}
-		if ((target.indexOf(check2) != -1) & (target.indexOf(check2) < minimumExist)) {
-			minimumExist = target.indexOf(check2);
-			System.out.println(minimumExist + "-");
-		}
-		if ((target.indexOf(check3) != -1) & (target.indexOf(check3) < minimumExist)) {
-			minimumExist = target.indexOf(check3);
-			System.out.println(minimumExist + "*");
-		}
-		if ((target.indexOf(check4) != -1) & (target.indexOf(check4) < minimumExist)) {
-			minimumExist = target.indexOf(check4);
-			System.out.println(minimumExist + "%");
-		}
-		//System.out.println(minimumExist + "番目に存在します");
-		return minimumExist;
-	}
-
-	public void equalResult(JLabel target) {
-		String dispTemp = target.getText();
-		List<String>sikiTemp=new ArrayList<String>();
-		System.out.println("計算式" + dispTemp);
-		System.out.println("計算式の長さ" + dispTemp.length());
-		int existIndex = existSymbolIndex(dispTemp);//計算記号が最小の何番目にあるか？
-
-		if (existIndex == 8635) {
-			System.out.println("見つかりませんでした");
-			target.setText(dispTemp);
-			return;
-		}else {
-			//int siki1=Integer.parseInt(dispTemp.substring(0,checkIndex));
-			String siki1=dispTemp.substring(0,existIndex);
-			sikiTemp.add(siki1);
-			System.out.println("式①"+sikiTemp.get(0));//式の一項
-			sikiTemp.add(dispTemp.substring(existIndex,existIndex+1));
-			System.out.println(existIndex + "番目に計算記号は存在します");
-			System.out.println("式②"+sikiTemp.get(1));
-			sikiTemp.add(dispTemp.substring(existIndex+1,dispTemp.length()));
-			System.out.println("式③"+sikiTemp.get(2));//残りの式
-		}
-		//System.out.println(str1.substring(0,3));//二文字切り取り
-		target.setText(dispTemp);
-	}
-
 	public void run() {
 		JFrame frame = new JFrame("シンプル電卓");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);//閉じるボタンを押した時に終了する
@@ -114,7 +62,6 @@ public class Calculator {
 		int bHeight = 80;//ボタンの高さ
 		int bMarginX = 110;//余白X
 		int bMarginY = 150;//余白Y
-
 		//配置x,配置y,サイズwidth,サイズheight
 		//ボタン一段目
 		JButtonArray[0].setBounds(bMarginX, bMarginY, bWidth, bHeight);
@@ -148,4 +95,79 @@ public class Calculator {
 		}
 		frame.setVisible(true);//画面に見えるようにする
 	}
+
+	public void equalResult(JLabel target) {
+		String displayResult = target.getText();//計算式(表示用)
+		String tempUse = new String(displayResult);//コピー(プログラムに仕様する)
+		//System.out.println(displayResult);
+		//System.out.println(tempUse);
+		List<Integer> iSiki = new ArrayList<Integer>();
+		List<String> sSiki = new ArrayList<String>();
+		System.out.println("計算式" + displayResult);
+		System.out.println("計算式の長さ" + displayResult.length());
+
+		if (displayResult.length() == 0) {
+			//計算式が空の時
+			return;
+		}
+		int minimumSymbolIndex = getMinimumSymbolIndex(tempUse);//計算記号が最小の何番目にあるか？
+
+		while (true) {
+			if (minimumSymbolIndex == 8635) {
+				System.out.println("計算記号は見つかりませんでした");
+				iSiki.add(Integer.parseInt(tempUse));
+				break;
+			}
+			if (minimumSymbolIndex == 0) {
+				//0番目に計算記号がある時の処理
+				System.out.println("始めの記号：" + tempUse.substring(0, 1));//式の項
+				sSiki.add(tempUse.substring(0, 1));
+				tempUse = displayResult.substring(1, tempUse.length());
+				System.out.println("先頭を削除した式：" + tempUse);
+			} else {
+				int kou1 = Integer.parseInt(tempUse.substring(0, minimumSymbolIndex));
+				iSiki.add(kou1);
+				System.out.println("項①：" + kou1);//式の項
+				String kigou1 = tempUse.substring(minimumSymbolIndex, minimumSymbolIndex + 1);
+				sSiki.add(kigou1);
+				System.out.println("計算記号①：" + kigou1);
+				tempUse = tempUse.substring(minimumSymbolIndex + 1, tempUse.length());
+			}
+			if (tempUse.length() == 0) {
+				//式が0の時
+				break;
+			}
+			minimumSymbolIndex = getMinimumSymbolIndex(tempUse);//次の計算記号を探す。
+		}
+		target.setText(displayResult);
+		System.out.println("数字配列" + iSiki);
+		System.out.println("記号配列" + sSiki);
+	}
+
+	public int getMinimumSymbolIndex(String target) {
+		String check1 = "＋";
+		String check2 = "－";
+		String check3 = "×";
+		String check4 = "÷";
+		int minimumSymbolIndex = 8635;
+		if (target.indexOf(check1) != -1) {
+			minimumSymbolIndex = target.indexOf(check1);
+			System.out.println(minimumSymbolIndex + "+");
+		}
+		if ((target.indexOf(check2) != -1) & (target.indexOf(check2) < minimumSymbolIndex)) {
+			minimumSymbolIndex = target.indexOf(check2);
+			System.out.println(minimumSymbolIndex + "-");
+		}
+		if ((target.indexOf(check3) != -1) & (target.indexOf(check3) < minimumSymbolIndex)) {
+			minimumSymbolIndex = target.indexOf(check3);
+			System.out.println(minimumSymbolIndex + "*");
+		}
+		if ((target.indexOf(check4) != -1) & (target.indexOf(check4) < minimumSymbolIndex)) {
+			minimumSymbolIndex = target.indexOf(check4);
+			System.out.println(minimumSymbolIndex + "%");
+		}
+		System.out.println(minimumSymbolIndex + "番目に計算記号があります");
+		return minimumSymbolIndex;
+	}
+
 }
