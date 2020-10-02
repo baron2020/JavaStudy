@@ -5,7 +5,7 @@ import java.util.regex.Pattern;
 
 //正規表現で一致するパターンを抽出する。
 //1個以上の数字,数字以外,一致した位置を探す。
-public class Seiki {
+public class Seikihyougen {
 	public static void main(String[] args) {
 		String test = "--325+36-123-456";//テスト文字列
 		String regex1 = "([0-9]+)";//半角数字
