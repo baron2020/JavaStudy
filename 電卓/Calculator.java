@@ -2,6 +2,7 @@ package swing0922;
 
 import java.awt.Font;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -28,6 +29,8 @@ public class Calculator {
 		frame.setContentPane(p);
 		p.setLayout(null);
 
+		List<String> NumberOrSymbolArray = new ArrayList<String>();//数字か記号か？
+
 		//ラベル関連
 		JLabel[] JLabelArray = new JLabel[4];
 		//ラベルのテキスト
@@ -51,8 +54,10 @@ public class Calculator {
 
 		//ボタン関連
 		JButton[] JButtonArray = new JButton[20];
-		String[] bValueArray = { "Ｃ", "√", "％", "÷", "７", "８", "９", "×", "４", "５", "６", "－",
-				"１", "２", "３", "＋", "０", "００", "．", "＝" };
+		String[] bValueArray = { "Ｃ", "√", "％", "÷", "７", "８", "９", "×",
+				"４", "５", "６", "－", "１", "２", "３", "＋", "０", "００", "．", "＝" };
+		String[] numberArray = { "１", "２", "３", "４", "５", "６", "７", "８", "９", "０", "００" };
+		String[] kigouArray = { "＋", "－", "×", "÷" };
 		//ボタン20種類のインスタンス生成とイベントの設定
 		for (int i = 0; i < JButtonArray.length; i++) {
 			JButtonArray[i] = new JButton(bValueArray[i]);
@@ -64,14 +69,49 @@ public class Calculator {
 				if (bValue.equals("Ｃ")) {
 					inputDisplay.setText("");
 					resultDisplay.setText("");
+					NumberOrSymbolArray.clear();
 					return;
 				}
 				if (bValue.equals("＝")) {
+					if (inputDisplay.getText().length() == 0) {
+						//計算式が空の時
+						return;
+					}
 					equalResult(inputDisplay);
 					return;
 				}
+				if (Arrays.asList(kigouArray).contains(bValue)) {
+					// "＋", "－", "×", "÷"を押した時の処理
+					if ((inputDisplay.getText().length() == 0) & (bValue != "－")) {
+						//計算式が空の時は演算子は"－"以外受け付けない
+						return;
+					}
+					if (inputDisplay.getText().length() != 0) {
+						//記号連続確認
+						String s = inputDisplay.getText().substring(0, inputDisplay.getText().length() - 1);
+						String sEnd = inputDisplay.getText().substring(inputDisplay.getText().length() - 1);
+						//System.out.println("s:" + s);
+						//System.out.println("send:" + sEnd);
+						if ((sEnd.equals("×")) && (bValue == "－")) {
+							System.out.println("特殊1パターン");
+						}
+						if ((sEnd.equals("÷")) && (bValue == "－")) {
+							System.out.println("特殊2パターン");
+						}
+					}
+					NumberOrSymbolArray.add("記号");
+				}
+				if (Arrays.asList(numberArray).contains(bValue)) {
+					// 数字を押した時の処理
+					if ((NumberOrSymbolArray.size() == 0) ||
+							(NumberOrSymbolArray.get(NumberOrSymbolArray.size() - 1) == "記号")) {
+						NumberOrSymbolArray.add("数字");
+					}
+				}
 				String display = inputDisplay.getText() + bValue;
 				inputDisplay.setText(display);
+
+				System.out.println("NorS：" + NumberOrSymbolArray);
 			});
 		}
 		//ボタン配置関連(X4行＊Y5段)
@@ -106,12 +146,6 @@ public class Calculator {
 		List<Integer> iSiki = new ArrayList<Integer>();//数字
 		List<String> enzansiArray = new ArrayList<String>();//記号
 		List<Integer> enzansiPositionArray = new ArrayList<Integer>();//記号の位置
-		//System.out.println("計算式" + tempSiki);
-		//System.out.println("計算式の長さ" + tempSiki.length());
-		if (tempSiki.length() == 0) {
-			//計算式が空の時
-			return;
-		}
 		//正規表現
 		String regex1 = "([０-９]+)";//全角数字
 		Pattern p1 = Pattern.compile(regex1);
