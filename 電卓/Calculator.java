@@ -66,6 +66,7 @@ public class Calculator {
 			//ボタンを押した時の処理
 			JButtonArray[i].addActionListener(e -> {
 				//System.out.println(bValue + "ボタンを押しました。");
+				int inpLen = inputDisplay.getText().length();//入力式の長さ
 				if (bValue.equals("Ｃ")) {
 					inputDisplay.setText("");
 					resultDisplay.setText("");
@@ -73,47 +74,86 @@ public class Calculator {
 					return;
 				}
 				if (bValue.equals("＝")) {
-					if (inputDisplay.getText().length() == 0) {
+					if (inpLen == 0) {
 						//計算式が空の時
 						return;
 					}
-					equalResult(inputDisplay);
-					return;
-				}
-				if (Arrays.asList(kigouArray).contains(bValue)) {
-					// "＋", "－", "×", "÷"を押した時の処理
-					if ((inputDisplay.getText().length() == 0) & (bValue != "－")) {
-						//計算式が空の時は演算子は"－"以外受け付けない
+					if (NumberOrSymbolArray.get(NumberOrSymbolArray.size() - 1).equals("記号")) {
+						System.out.println("記号で終わっています。");
 						return;
 					}
-					if (inputDisplay.getText().length() != 0) {
-						//記号連続確認
-						String s = inputDisplay.getText().substring(0, inputDisplay.getText().length() - 1);
-						String sEnd = inputDisplay.getText().substring(inputDisplay.getText().length() - 1);
-						//System.out.println("s:" + s);
-						//System.out.println("send:" + sEnd);
-						if ((sEnd.equals("×")) && (bValue == "－")) {
-							System.out.println("特殊1パターン");
-						}
-						if ((sEnd.equals("÷")) && (bValue == "－")) {
-							System.out.println("特殊2パターン");
+					equalResult(NumberOrSymbolArray, inputDisplay);
+					return;
+				}
+				// "＋", "－", "×", "÷"を押した時の処理
+				if (Arrays.asList(kigouArray).contains(bValue)) {
+					if (inpLen == 0) {
+						if (bValue.equals("－")) {
+							NumberOrSymbolArray.add("記号");
+							inputDisplay.setText(bValue);
+							return;
+						} else {
+							//計算式が空の時は演算子は"－"以外受け付けない
+							return;
 						}
 					}
-					NumberOrSymbolArray.add("記号");
+
+					String tempInp1 = inputDisplay.getText().substring(0, inpLen - 1);//末尾を除いた式
+					String end1 = inputDisplay.getText().substring(inpLen - 1);//末尾
+					if (NumberOrSymbolArray.size() == 1) {
+						if (NumberOrSymbolArray.get(NumberOrSymbolArray.size() - 1).equals("記号")) {
+							if (bValue.equals("＋")) {
+								inputDisplay.setText("");
+								NumberOrSymbolArray.clear();
+								return;
+							} else {
+								return;
+							}
+						}
+					}
+					if (NumberOrSymbolArray.size() != 0) {
+						if (NumberOrSymbolArray.get(NumberOrSymbolArray.size() - 1).equals("数字")) {
+							NumberOrSymbolArray.add("記号");
+							inputDisplay.setText(inputDisplay.getText() + bValue);
+							return;
+						}
+						if (inpLen >= 3) {
+							String tempInp2 = inputDisplay.getText().substring(0, inpLen - 2);//末尾二文字を除いた式
+							String end2 = inputDisplay.getText().substring(inpLen - 2, inpLen - 1);//末尾から二文字目
+							if (((end2.equals("×")) && (end1.equals("－"))) ||
+									((end2.equals("÷")) && (end1.equals("－")))) {
+								System.out.println("2記号→1記号");
+								NumberOrSymbolArray.remove(NumberOrSymbolArray.size() - 1);
+								inputDisplay.setText(tempInp2 + bValue);
+								return;
+							}
+						}
+						if (((end1.equals("×")) && (bValue.equals("－"))) ||
+								((end1.equals("÷")) && (bValue.equals("－")))) {
+							System.out.println("1記号→2記号");
+							NumberOrSymbolArray.add("記号");
+							inputDisplay.setText(inputDisplay.getText() + bValue);
+							return;
+						}
+						if (Arrays.asList(kigouArray).contains(end1)) {
+							System.out.println("1記号→1記号");
+							inputDisplay.setText(tempInp1 + bValue);
+							return;
+						}
+					}
 				}
+				// 数字を押した時の処理
 				if (Arrays.asList(numberArray).contains(bValue)) {
-					// 数字を押した時の処理
 					if ((NumberOrSymbolArray.size() == 0) ||
-							(NumberOrSymbolArray.get(NumberOrSymbolArray.size() - 1) == "記号")) {
+							(NumberOrSymbolArray.get(NumberOrSymbolArray.size() - 1).equals("記号"))) {
 						NumberOrSymbolArray.add("数字");
 					}
+					inputDisplay.setText(inputDisplay.getText() + bValue);
 				}
-				String display = inputDisplay.getText() + bValue;
-				inputDisplay.setText(display);
-
-				System.out.println("NorS：" + NumberOrSymbolArray);
+				//System.out.println("NorS：" + NumberOrSymbolArray);
 			});
 		}
+
 		//ボタン配置関連(X4行＊Y5段)
 		int bWidth = 120;//ボタンの横幅
 		int bHeight = 80;//ボタンの高さ
@@ -141,9 +181,9 @@ public class Calculator {
 	}
 
 	//＝が押された時の処理
-	public void equalResult(JLabel target) {
+	public void equalResult(List<String> NumOrSimArray, JLabel target) {
 		String tempSiki = target.getText();//表示されている計算式
-		List<Integer> iSiki = new ArrayList<Integer>();//数字
+		List<Integer> numberArray = new ArrayList<Integer>();//数字
 		List<String> enzansiArray = new ArrayList<String>();//記号
 		List<Integer> enzansiPositionArray = new ArrayList<Integer>();//記号の位置
 		//正規表現
@@ -152,8 +192,7 @@ public class Calculator {
 		Matcher m1 = p1.matcher(tempSiki);
 		//1個以上の数字のパターンを抽出
 		while (m1.find()) {
-			iSiki.add(Integer.parseInt(m1.group()));
-			//System.out.println("抽出数字:" + m1.group());
+			numberArray.add(Integer.parseInt(m1.group()));
 		}
 		String regex3 = "([^０-９])";//全角数字以外
 		Pattern p2 = Pattern.compile(regex3);
@@ -162,11 +201,52 @@ public class Calculator {
 		while (m2.find()) {
 			enzansiArray.add(m2.group());
 			enzansiPositionArray.add(m2.start());
-			//System.out.println("一致した位置:" + m2.start() + ",抽出記号:" + m2.group());
 		}
 		target.setText(tempSiki);
-		System.out.println("数字配列:" + iSiki);
+		System.out.println("数字配列:" + numberArray);
 		System.out.println("演算子配列:" + enzansiArray);
-		System.out.println("演算子位置配列:" + enzansiPositionArray);
+		//System.out.println("演算子位置配列:" + enzansiPositionArray);
+		System.out.println("数・記配列:" + NumOrSimArray);
+		//式の変換①
+		List<String> changeArray1 = new ArrayList<String>();//式の変換
+		int nIndex = 0;
+		int eIndex = 0;
+		for (int i = 0; i < NumOrSimArray.size(); i++) {
+			if (NumOrSimArray.get(i).equals("数字")) {
+				changeArray1.add(String.valueOf(numberArray.get(nIndex)));
+				nIndex++;
+				continue;
+			}
+			if (NumOrSimArray.get(i).equals("記号")) {
+				changeArray1.add(enzansiArray.get(eIndex));
+				eIndex++;
+				continue;
+			}
+		}
+		System.out.println("変換配列①:" + changeArray1);
+		//式の変換②式から"－"を変換
+		List<String> changeArray2 = new ArrayList<String>();//式から"－"を変換
+		for (int i = 0; i < changeArray1.size(); i++) {
+			if (changeArray1.get(i).equals("－")) {
+				changeArray2.add("－" + changeArray1.get(i + 1));
+				i++;
+			} else {
+				changeArray2.add(changeArray1.get(i));
+			}
+		}
+		System.out.println("変換配列②:" + changeArray2);
+		//"×"計算
+		List<String> changeArray3 = new ArrayList<String>();//計算
+//		for (int i = 0; i < changeArray2.size(); i++) {
+//			if (changeArray2.get(i).equals("×")) {
+//				String taget1=changeArray2.get(i-1);
+//				String taget2=changeArray2.get(i+1);
+//				int result=Integer.parseInt(taget1)*Integer.parseInt(taget2);
+//				changeArray2.set(i+1, String.valueOf(result));
+//				changeArray3.add(String.valueOf(result));
+//				i++;
+//			}
+//		}
+		System.out.println("×計算結果:" + changeArray3);
 	}
 }
