@@ -28,9 +28,7 @@ public class Calculator {
 		JPanel p = new JPanel();
 		frame.setContentPane(p);
 		p.setLayout(null);
-
 		List<String> NumberOrSymbolArray = new ArrayList<String>();//数字か記号か？
-
 		//ラベル関連
 		JLabel[] JLabelArray = new JLabel[4];
 		//ラベルのテキスト
@@ -67,6 +65,9 @@ public class Calculator {
 			JButtonArray[i].addActionListener(e -> {
 				//System.out.println(bValue + "ボタンを押しました。");
 				int inpLen = inputDisplay.getText().length();//入力式の長さ
+				if ((bValue.equals("√"))||(bValue.equals("％"))||(bValue.equals("．"))){
+					return;
+				}
 				if (bValue.equals("Ｃ")) {
 					inputDisplay.setText("");
 					resultDisplay.setText("");
@@ -82,7 +83,8 @@ public class Calculator {
 						System.out.println("記号で終わっています。");
 						return;
 					}
-					equalResult(NumberOrSymbolArray, inputDisplay);
+					String finalResult = equalResult(NumberOrSymbolArray, inputDisplay);//最終計算結果
+					resultDisplay.setText(finalResult);//計算結果を表示
 					return;
 				}
 				// "＋", "－", "×", "÷"を押した時の処理
@@ -97,7 +99,6 @@ public class Calculator {
 							return;
 						}
 					}
-
 					String tempInp1 = inputDisplay.getText().substring(0, inpLen - 1);//末尾を除いた式
 					String end1 = inputDisplay.getText().substring(inpLen - 1);//末尾
 					if (NumberOrSymbolArray.size() == 1) {
@@ -150,7 +151,6 @@ public class Calculator {
 					}
 					inputDisplay.setText(inputDisplay.getText() + bValue);
 				}
-				//System.out.println("NorS：" + NumberOrSymbolArray);
 			});
 		}
 
@@ -181,7 +181,7 @@ public class Calculator {
 	}
 
 	//＝が押された時の処理
-	public void equalResult(List<String> NumOrSimArray, JLabel target) {
+	public String equalResult(List<String> NumOrSimArray, JLabel target) {
 		String tempSiki = target.getText();//表示されている計算式
 		List<Integer> numberArray = new ArrayList<Integer>();//数字
 		List<String> enzansiArray = new ArrayList<String>();//記号
@@ -228,25 +228,41 @@ public class Calculator {
 		List<String> changeArray2 = new ArrayList<String>();//式から"－"を変換
 		for (int i = 0; i < changeArray1.size(); i++) {
 			if (changeArray1.get(i).equals("－")) {
-				changeArray2.add("－" + changeArray1.get(i + 1));
+				changeArray2.add("-" + changeArray1.get(i + 1));
 				i++;
 			} else {
 				changeArray2.add(changeArray1.get(i));
 			}
 		}
 		System.out.println("変換配列②:" + changeArray2);
-		//"×"計算
-		List<String> changeArray3 = new ArrayList<String>();//計算
-//		for (int i = 0; i < changeArray2.size(); i++) {
-//			if (changeArray2.get(i).equals("×")) {
-//				String taget1=changeArray2.get(i-1);
-//				String taget2=changeArray2.get(i+1);
-//				int result=Integer.parseInt(taget1)*Integer.parseInt(taget2);
-//				changeArray2.set(i+1, String.valueOf(result));
-//				changeArray3.add(String.valueOf(result));
-//				i++;
-//			}
-//		}
-		System.out.println("×計算結果:" + changeArray3);
+		//×÷計算
+		List<String> changeArray3 = new ArrayList<String>(changeArray2);//コピー
+		for (int i = 0; i < changeArray3.size(); i++) {
+			if ((changeArray3.get(i).equals("×")) ||
+					(changeArray3.get(i).equals("÷"))) {
+				String taget1 = changeArray3.get(i - 1);
+				String taget2 = changeArray3.get(i + 1);
+				int result = 0;
+				if (changeArray3.get(i).equals("×")) {
+					result = Integer.parseInt(taget1) * Integer.parseInt(taget2);
+				} else if (changeArray3.get(i).equals("÷")) {
+					result = Integer.parseInt(taget1) / Integer.parseInt(taget2);
+				}
+				changeArray3.set(i - 1, String.valueOf(result));
+				changeArray3.remove(i);
+				changeArray3.remove(i);
+				i--;
+			}
+		}
+		System.out.println("×÷計算結果:" + changeArray3);
+		//最終計算
+		int finalResult = 0;
+		for (int i = 0; i < changeArray3.size(); i++) {
+			if (!(changeArray3.get(i).equals("＋")) ){
+				finalResult += Integer.parseInt(changeArray3.get(i));
+			}
+		}
+		System.out.println("最終計算結果:" + finalResult);
+		return String.valueOf(finalResult);
 	}
 }
