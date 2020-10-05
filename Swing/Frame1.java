@@ -1,3 +1,5 @@
+package swing;
+
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -6,8 +8,8 @@ import javax.swing.JPanel;
 //フレームを作成し、ラベルとボタンを任意の位置に配置する。
 public class Frame1 {
 	public static void main(String[] args) {
-		Frame1 tf1 = new Frame1();
-		tf1.run();
+		Frame1 f1 = new Frame1();
+		f1.run();
 	}
 	public void run() {
 		JFrame frame = new JFrame("テスト");
