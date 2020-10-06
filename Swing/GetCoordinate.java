@@ -9,7 +9,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-//座標取得
+//座標取得イベントの実装
 public class GetCoordinate implements MouseListener {
 	JLabel JLabel1;
 
@@ -41,21 +41,26 @@ public class GetCoordinate implements MouseListener {
 		frame.setVisible(true);//画面に見えるようにする
 	}
 
+	@Override
 	public void mouseClicked(MouseEvent e) {
 		Point point = e.getPoint();
 		System.out.println("p：" + point);
 		JLabel1.setText("座標取得:" + " " + "x:" + point.x + " " + "y:" + point.y);
 	}
 
+	@Override
 	public void mousePressed(MouseEvent e) {
 	}
 
+	@Override
 	public void mouseReleased(MouseEvent e) {
 	}
 
+	@Override
 	public void mouseEntered(MouseEvent e) {
 	}
 
+	@Override
 	public void mouseExited(MouseEvent e) {
 	}
 }
