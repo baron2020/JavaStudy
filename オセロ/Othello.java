@@ -7,6 +7,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -17,14 +18,14 @@ import javax.swing.border.LineBorder;
 
 public class Othello implements MouseListener {
 	Map<String, String> gameRecord;//盤面情報
-	List<String> gouhousyuArray= new ArrayList<String>();//合法手配列
+	List<String> gouhousyuArray;//合法手配列
 	JLabel[][] masuArray;//マス配列
 	JLabel tebanLabel;//手番ラベル
 	JLabel stoneNumLabel;//座標ラベル
 	String teban = "black";//手番
 	int blackNum = 0;//黒石
 	int whiteNum = 0;//白石
-	String currentMasu="";//クリックしたマス
+	String currentMasu = "";//クリックしたマス
 
 	public static void main(String[] args) {
 		Othello othello = new Othello();
@@ -115,6 +116,7 @@ public class Othello implements MouseListener {
 				gameRecord.put(masuArray[i], "None");
 			}
 		}
+
 	}
 
 	public void setUpStone() {
@@ -167,8 +169,7 @@ public class Othello implements MouseListener {
 
 	public void setGouhousyuArray() {
 		//手番の合法手をセットする。
-		gouhousyuArray.clear();//配列のリセット
-		String[] masuArray = { "d1s1", "d1s2", "d1s3", "d1s4", "d1s5", "d1s6", "d1s7", "d1s8",
+		String[] gameRecordKeys = { "d1s1", "d1s2", "d1s3", "d1s4", "d1s5", "d1s6", "d1s7", "d1s8",
 				"d2s1", "d2s2", "d2s3", "d2s4", "d2s5", "d2s6", "d2s7", "d2s8",
 				"d3s1", "d3s2", "d3s3", "d3s4", "d3s5", "d3s6", "d3s7", "d3s8",
 				"d4s1", "d4s2", "d4s3", "d4s4", "d4s5", "d4s6", "d4s7", "d4s8",
@@ -176,19 +177,151 @@ public class Othello implements MouseListener {
 				"d6s1", "d6s2", "d6s3", "d6s4", "d6s5", "d6s6", "d6s7", "d6s8",
 				"d7s1", "d7s2", "d7s3", "d7s4", "d7s5", "d7s6", "d7s7", "d7s8",
 				"d8s1", "d8s2", "d8s3", "d8s4", "d8s5", "d8s6", "d8s7", "d8s8" };
-		gouhousyuArray.add(teban);
-		System.out.println(gouhousyuArray);
+		//8方向探索用配列
+		int[][] allDirectionArray = { { -1, 0 }, { -1, 1 }, { 0, 1 }, { 1, 1 }, { 1, 0 }, { 1, -1 }, { 0, -1 },
+				{ -1, -1 } };//8方向(上,右上,右,右下,下,左下,左,左上)
+		List<String> tempGouhousyuArray = new ArrayList<String>();//合法手仮格納配列
+		String[] switchArray = null;//手番により切り替え
+		String[] useBlackArray = { "black", "white" };//手番黒用
+		String[] useWhiteArray = { "white", "black" };//手番白用
+		int targetDan, targetSuji, checkDan, checkSuji;
+		String checkMasu;
+		boolean existRivalStoneFlg;//ライバルの石が間に存在するか？
+
+		if (gouhousyuArray != null) {
+			gouhousyuArray.clear();//配列のリセット
+		}
+		if (teban.equals("black")) {
+			switchArray = useBlackArray;
+		} else if (teban.equals("white")) {
+			switchArray = useWhiteArray;
+		}
+		for (int i = 0; i < gameRecordKeys.length; i++) {
+			//gameRecordKeys[i]:合法手確認の対象のマス
+			if (!(gameRecord.get(gameRecordKeys[i]).equals("None"))) {
+				continue;//合法手確認の対象のマスに石があれば抜ける
+			}
+			targetDan = Integer.parseInt(gameRecordKeys[i].substring(1, 2));//二文字目の段の切り出し
+			targetSuji = Integer.parseInt(gameRecordKeys[i].substring(3, 4));//四文字目の筋の切り出し
+			for (int j = 0; j < allDirectionArray.length; j++) {
+				existRivalStoneFlg = false;//ライバルの石が間に存在しないフラグをFalseにする
+				checkDan = targetDan;//new Integer()//コピー
+				checkSuji = targetSuji;
+				while (true) {
+					checkDan += allDirectionArray[j][0];
+					checkSuji += allDirectionArray[j][1];
+					checkMasu = 'd' + String.valueOf(checkDan) + 's' + String.valueOf(checkSuji);
+					if ((checkDan == 0) || (checkSuji == 0) || (checkDan == 9) || (checkSuji == 9)) {
+						break;//盤外であれば抜ける
+					} else {
+						//盤内であれば
+						if (gameRecord.get(checkMasu).equals("None")) {
+							break;//一マス先に石がなければ抜ける
+						}
+						if ((existRivalStoneFlg == false) && (gameRecord.get(checkMasu).equals(switchArray[0]))) {
+							//[0]:自石
+							break;//#間にライバルの石がない＆一マス先が自石ならぬける
+						}
+						if (gameRecord.get(checkMasu).equals(switchArray[1])) {
+							//[1]:ライバルの石
+							existRivalStoneFlg = true;
+							continue;//マスの確認方向を一マス伸ばし処理を続ける
+						}
+						if ((existRivalStoneFlg) && (gameRecord.get(checkMasu).equals(switchArray[0]))) {
+							//[0]:自石
+							tempGouhousyuArray.add(gameRecordKeys[i]);//合法手を配列に格納
+							existRivalStoneFlg = false;//フラグをFalseに戻す
+							break;//ループを抜ける
+						}
+					}
+				}
+			}
+		}
+		gouhousyuArray = new ArrayList<String>(new HashSet<>(tempGouhousyuArray));//配列から重複した値を削除する
 	}
 
-	public void turnOverStone() {
+	public void turnOverStone(String startingPoint) {
 		//着手＆石を反転させる。
+		//startingPoint:着手を起点にする。
+		//8方向探索用配列
+		int[][] allDirectionArray = { { -1, 0 }, { -1, 1 }, { 0, 1 }, { 1, 1 }, { 1, 0 }, { 1, -1 }, { 0, -1 },
+				{ -1, -1 } };//8方向(上,右上,右,右下,下,左下,左,左上)
+		boolean turnOverFlg;//反転動作確認に使用
+		List<String> turnOverStoneArray = new ArrayList<String>();//反転対象配列
+		String[] switchArray = null;//手番により切り替え
+		String[] useBlackArray = { "black", "white" };//手番黒用
+		String[] useWhiteArray = { "white", "black" };//手番白用
+
+		int targetDan, targetSuji, checkDan, checkSuji, targetX, targetY;
+		String checkMasu;
+
+		if (teban.equals("black")) {
+			switchArray = useBlackArray;
+		} else if (teban.equals("white")) {
+			switchArray = useWhiteArray;
+		}
+
+		//石の反転
+		targetDan = Integer.parseInt(startingPoint.substring(1, 2));//二文字目の段の切り出し
+		targetSuji = Integer.parseInt(startingPoint.substring(3, 4));//四文字目の筋の切り出し
+		for (int j = 0; j < allDirectionArray.length; j++) {
+			turnOverFlg = false;//反転動作確認に使用
+			checkDan = targetDan;
+			checkSuji = targetSuji;
+			while (true) {
+				checkDan += allDirectionArray[j][0];
+				checkSuji += allDirectionArray[j][1];
+				checkMasu = 'd' + String.valueOf(checkDan) + 's' + String.valueOf(checkSuji);
+				if ((checkDan == 0) || (checkSuji == 0) || (checkDan == 9) || (checkSuji == 9)) {
+					turnOverStoneArray.clear();//配列のリセット
+					break;//盤外であれば抜ける
+				}
+				//盤内であれば
+				if (gameRecord.get(checkMasu).equals("None")) {
+					turnOverStoneArray.clear();
+					break;//一マス先に石がなければ抜ける
+				}
+				if ((turnOverFlg == false) && (gameRecord.get(checkMasu).equals(switchArray[0]))) {
+					//[0]:自石
+					turnOverStoneArray.clear();
+					break;//間にライバルの石がない＆一マス先が自石ならぬける
+				}
+				if (gameRecord.get(checkMasu).equals(switchArray[1])) {
+					//[1]:ライバルの石
+					turnOverFlg = true;
+					turnOverStoneArray.add(checkMasu);//反転対象の石が置かれているマスを配列に格納する
+					continue;//マスの確認方向を一マス伸ばし処理を続ける
+				}
+				if ((turnOverFlg) && (gameRecord.get(checkMasu).equals(switchArray[0]))) {
+					//[0]:自石
+					//配列をもとに反転させる
+					System.out.println("反転対象配列："+turnOverStoneArray);
+
+					for (int i = 0; i < turnOverStoneArray.size(); i++) {
+						targetY = Integer.parseInt(turnOverStoneArray.get(i).substring(1, 2));//二文字目の段の切り出し
+						targetX = Integer.parseInt(turnOverStoneArray.get(i).substring(3, 4));//四文字目の筋の切り出し
+						masuArray[targetX - 1][targetY - 1].setText("●");
+						if (switchArray[0].equals("black")) {
+							masuArray[targetX - 1][targetY - 1].setForeground(Color.black);
+						} else if (switchArray[0].equals("white")) {
+							masuArray[targetX - 1][targetY - 1].setForeground(Color.white);
+						}
+						gameRecord.replace(turnOverStoneArray.get(i), switchArray[0]);//盤面情報の更新
+					}
+					turnOverFlg = false;//フラグをFalseに戻す
+					break;//ループを抜ける
+				}
+			}
+		}
+		return;
 	}
 
 	@Override
 	public void mouseClicked(MouseEvent e) {
 		setGouhousyuArray();//手番の合法手をセットする。
+		System.out.println("合法手" + gouhousyuArray);
 		Point point = e.getPoint();
-		System.out.println("p：" + point);
+		//System.out.println("p：" + point);
 		//x:52～123,125～196,198～269,271～342,344～415,417～488,490～561,563～634
 		//y:102～173,175～246,248～319,321～392,394～465,467～538,540～611,613～684
 		String clickX;
@@ -211,7 +344,6 @@ public class Othello implements MouseListener {
 			clickX = "8";
 		} else {
 			clickX = "0";
-			//currentMasu = "None";//盤外
 		}
 		if ((point.y >= 102) && (point.y <= 173)) {
 			clickY = "1";
@@ -238,24 +370,20 @@ public class Othello implements MouseListener {
 			currentMasu = "d" + clickY + "s" + clickX;
 		}
 		System.out.println("クリックしたマス：" + currentMasu);
-		if (currentMasu != "盤外") {
-			if (gameRecord.get(currentMasu) == "None") {
-				masuArray[Integer.parseInt(clickX) - 1][Integer.parseInt(clickY) - 1].setText("●");
-				Color targetColor;//石の色
-				if (teban == "black") {
-					targetColor = Color.black;
-				} else {
-					targetColor = Color.white;
-				}
-				masuArray[Integer.parseInt(clickX) - 1][Integer.parseInt(clickY) - 1].setForeground(targetColor);
-				gameRecord.replace(currentMasu, teban);
-				changeTeban();//手番の交代
-				System.out.println("currentMasu：" + gameRecord.get(currentMasu));
-			} else {
-				System.out.println("石があります。");
+		//合法手確認
+		if (gouhousyuArray.contains(currentMasu)) {
+			masuArray[Integer.parseInt(clickX) - 1][Integer.parseInt(clickY) - 1].setText("●");
+			if (teban.equals("black")) {
+				masuArray[Integer.parseInt(clickX) - 1][Integer.parseInt(clickY) - 1].setForeground(Color.black);
+			} else if (teban.equals("white")) {
+				masuArray[Integer.parseInt(clickX) - 1][Integer.parseInt(clickY) - 1].setForeground(Color.white);
 			}
+			gameRecord.replace(currentMasu, teban);//盤面情報の更新
+			turnOverStone(currentMasu);//石の反転
+			changeTeban();//手番の交代
 		} else {
-			System.out.println("盤外です。");
+			System.out.println("合法手ではありません");
+			return;
 		}
 	}
 
