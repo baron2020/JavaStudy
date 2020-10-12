@@ -18,14 +18,14 @@ import javax.swing.JPanel;
 import javax.swing.border.LineBorder;
 
 public class Othello implements MouseListener {
-	Map<String, String> gameRecord;//盤面情報
+	private Map<String, String> gameRecord;//盤面情報
 	private final String[] gameRecordKeys;
-	List<String> gouhousyuArray;//合法手配列
-	JLabel[][] masuArray;//マス配列
-	JLabel tebanLabel;//手番ラベル
-	JLabel stoneNumLabel;//石の数ラベル
-	JLabel gameInfoLabel;//パス,勝敗表示ラベル
-	JButton passButton;//パスボタン
+	private List<String> gouhousyuArray;//合法手配列
+	private JLabel[][] masuArray;//マス配列
+	private JLabel tebanLabel;//手番ラベル
+	private JLabel stoneNumLabel;//石の数ラベル
+	private JLabel gameInfoLabel;//パス,勝敗表示ラベル
+	private JButton passButton;//パスボタン
 	private String teban;
 	private String currentMasu;//クリックしたマス
 	private int blackNum;//黒石
@@ -33,8 +33,9 @@ public class Othello implements MouseListener {
 	private boolean gameEndFlg;//決着フラグ
 	private boolean passFlg;//連続パスフラグ
 
-	Othello(){
-		this.gameRecordKeys = new String[]{ "d1s1", "d1s2", "d1s3", "d1s4", "d1s5", "d1s6", "d1s7", "d1s8",
+	Othello() {
+		this.gameRecord = new HashMap<>();//盤面情報
+		this.gameRecordKeys = new String[] { "d1s1", "d1s2", "d1s3", "d1s4", "d1s5", "d1s6", "d1s7", "d1s8",
 				"d2s1", "d2s2", "d2s3", "d2s4", "d2s5", "d2s6", "d2s7", "d2s8",
 				"d3s1", "d3s2", "d3s3", "d3s4", "d3s5", "d3s6", "d3s7", "d3s8",
 				"d4s1", "d4s2", "d4s3", "d4s4", "d4s5", "d4s6", "d4s7", "d4s8",
@@ -42,12 +43,17 @@ public class Othello implements MouseListener {
 				"d6s1", "d6s2", "d6s3", "d6s4", "d6s5", "d6s6", "d6s7", "d6s8",
 				"d7s1", "d7s2", "d7s3", "d7s4", "d7s5", "d7s6", "d7s7", "d7s8",
 				"d8s1", "d8s2", "d8s3", "d8s4", "d8s5", "d8s6", "d8s7", "d8s8" };
+		this.masuArray = new JLabel[8][8];//マス配列
+		this.tebanLabel = new JLabel();//手番ラベル
+		this.stoneNumLabel = new JLabel();//石の数ラベル
+		this.gameInfoLabel = new JLabel();//パス,勝敗表示ラベル
+		this.passButton = new JButton("パス");//パスボタン
 		this.teban = "black";
 		this.currentMasu = "";
-		this. blackNum = 0;
-		this. whiteNum = 0;
-		this. gameEndFlg=false;
-		this. passFlg=false;
+		this.blackNum = 0;
+		this.whiteNum = 0;
+		this.gameEndFlg = false;
+		this.passFlg = false;
 	}
 
 	public static void main(String[] args) {
@@ -78,41 +84,34 @@ public class Othello implements MouseListener {
 		int marginY = 30;//余白Y
 		int tdW = 120;//表示画面の横幅
 		int tdH = 35;//表示画面の高さ
-		tebanLabel = new JLabel();
-		tebanLabel.setBounds(marginX, marginY, tdW, tdH);
-		tebanLabel.setFont(new Font("MSゴシック", Font.PLAIN, 24));
-		tebanLabel.setOpaque(true);
-		tebanLabel.setBackground(Color.white);//バックグラウンドカラーの設定
-		tebanLabel.setHorizontalAlignment(JLabel.CENTER);//水平位置
-		p.add(tebanLabel);//手番表示ラベル
-		//石ラベル
-		stoneNumLabel = new JLabel();
-		stoneNumLabel.setBounds(marginX, 75, 180, tdH);
-		stoneNumLabel.setFont(new Font("MSゴシック", Font.PLAIN, 24));
-		stoneNumLabel.setOpaque(true);
-		stoneNumLabel.setBackground(Color.white);//バックグラウンドカラーの設定
-		stoneNumLabel.setHorizontalAlignment(JLabel.CENTER);//水平位置
-		p.add(stoneNumLabel);//手番表示ラベル
+		this.tebanLabel.setBounds(marginX, marginY, tdW, tdH);
+		this.tebanLabel.setFont(new Font("MSゴシック", Font.PLAIN, 24));
+		this.tebanLabel.setOpaque(true);
+		this.tebanLabel.setBackground(Color.white);//バックグラウンドカラーの設定
+		this.tebanLabel.setHorizontalAlignment(JLabel.CENTER);//水平位置
+		p.add(this.tebanLabel);//手番表示ラベル
+		//石の数ラベル
+		this.stoneNumLabel.setBounds(marginX, 75, 180, tdH);
+		this.stoneNumLabel.setFont(new Font("MSゴシック", Font.PLAIN, 24));
+		this.stoneNumLabel.setOpaque(true);
+		this.stoneNumLabel.setBackground(Color.white);//バックグラウンドカラーの設定
+		this.stoneNumLabel.setHorizontalAlignment(JLabel.CENTER);//水平位置
+		p.add(this.stoneNumLabel);//手番表示ラベル
 		//パス,勝敗表示ラベル
-		gameInfoLabel = new JLabel();
-		//gameInfoLabel.setText("パスしてください。");
-		//gameInfoLabel.setText("黒の勝ちです。");
-		gameInfoLabel.setBounds(marginX + tdW + 10, marginY, 240, tdH);
-		gameInfoLabel.setFont(new Font("MSゴシック", Font.PLAIN, 24));
-		gameInfoLabel.setOpaque(true);
-		//gameInfoLabel.setBackground(Color.white);//バックグラウンドカラーの設定
-		gameInfoLabel.setHorizontalAlignment(JLabel.CENTER);//水平位置
-		p.add(gameInfoLabel);
+		this.gameInfoLabel.setBounds(marginX + tdW + 10, marginY, 240, tdH);
+		this.gameInfoLabel.setFont(new Font("MSゴシック", Font.PLAIN, 24));
+		this.gameInfoLabel.setOpaque(true);
+		//getGameInfoLabel().setBackground(Color.white);//バックグラウンドカラーの設定
+		this.gameInfoLabel.setHorizontalAlignment(JLabel.CENTER);//水平位置
+		p.add(this.gameInfoLabel);
 		//パスボタン
-		passButton = new JButton("パス");
-		passButton.setFont(new Font("MSゴシック", Font.PLAIN, 24));
-		passButton.setBounds(marginX + 180 + 10, 75, 100, tdH);
-		//ボタンを押した時のイベント処理
-		passButton.addActionListener(e -> {
+		this.passButton.setFont(new Font("MSゴシック", Font.PLAIN, 24));
+		this.passButton.setBounds(marginX + 180 + 10, 75, 100, tdH);
+		this.passButton.addActionListener(e -> {
+			//ボタンを押した時のイベント処理
 			passButtonEvent();
 		});
-		p.add(passButton);
-
+		p.add(this.passButton);
 		//オセロ盤(マスの作成)
 		int banMarginX = 50;//余白X
 		int banMarginY = 120;//余白Y
@@ -122,54 +121,51 @@ public class Othello implements MouseListener {
 		//マス64個の配置位置(X8行＊Y8列)//罫線を考慮
 		int[] setX = { banMarginX, 125 - 2, 200 - 4, 275 - 6, 350 - 8, 425 - 10, 500 - 12, 575 - 14 };
 		int[] setY = { banMarginY, 195 - 2, 270 - 4, 345 - 6, 420 - 8, 495 - 10, 570 - 12, 645 - 14 };
-		masuArray = new JLabel[8][8];
 		//マスの配置＆設定
-		for (int y = 0; y < masuArray.length; y++) {
-			for (int x = 0; x < masuArray[0].length; x++) {
-				masuArray[x][y] = new JLabel("");
-				masuArray[x][y].setBounds(setX[x], setY[y], masuW, masuH);//配置x,配置y,width,height
-				masuArray[x][y].setFont(new Font("MSゴシック", Font.PLAIN, 71));//フォントスタイル,文字の大きさ
-				masuArray[x][y].setOpaque(true);//バックグラウンドカラーの設定を許可する。
-				masuArray[x][y].setBackground(Color.green);//バックグラウンドカラーの設定
-				masuArray[x][y].setBorder(br);
-				masuArray[x][y].setHorizontalAlignment(JLabel.CENTER);//水平位置
-				p.add(masuArray[x][y]);//盤の配置
+		for (int y = 0; y < this.masuArray.length; y++) {
+			for (int x = 0; x < this.masuArray[0].length; x++) {
+				this.masuArray[x][y] = new JLabel("");
+				this.masuArray[x][y].setBounds(setX[x], setY[y], masuW, masuH);//配置x,配置y,width,height
+				this.masuArray[x][y].setFont(new Font("MSゴシック", Font.PLAIN, 71));//フォントスタイル,文字の大きさ
+				this.masuArray[x][y].setOpaque(true);//バックグラウンドカラーの設定を許可する。
+				this.masuArray[x][y].setBackground(Color.green);//バックグラウンドカラーの設定
+				this.masuArray[x][y].setBorder(br);
+				this.masuArray[x][y].setHorizontalAlignment(JLabel.CENTER);//水平位置
+				p.add(this.masuArray[x][y]);//盤の配置
 			}
 		}
 	}
 
 	public void setUpGameRecord() {
 		//盤面情報の初期化
-		gameRecord = new HashMap<>();
-		for (int i = 0; i < gameRecordKeys.length; i++) {
-			if ((gameRecordKeys[i].equals("d4s4")) || (gameRecordKeys[i].equals("d5s5"))) {
-				gameRecord.put(gameRecordKeys[i], "white");
-			} else if ((gameRecordKeys[i].equals("d4s5")) || (gameRecordKeys[i].equals("d5s4"))) {
-				gameRecord.put(gameRecordKeys[i], "black");
+		for (int i = 0; i < this.gameRecordKeys.length; i++) {
+			if ((this.gameRecordKeys[i].equals("d4s4")) || (this.gameRecordKeys[i].equals("d5s5"))) {
+				this.gameRecord.put(this.gameRecordKeys[i], "white");
+			} else if ((this.gameRecordKeys[i].equals("d4s5")) || (this.gameRecordKeys[i].equals("d5s4"))) {
+				this.gameRecord.put(this.gameRecordKeys[i], "black");
 			} else {
-				gameRecord.put(gameRecordKeys[i], "None");
+				this.gameRecord.put(this.gameRecordKeys[i], "None");
 			}
 		}
-
 	}
 
 	public void setUpStone() {
 		//初期石の配置
-		masuArray[3][3].setText("●");
-		masuArray[3][3].setForeground(Color.white);//石の色
-		masuArray[4][4].setText("●");
-		masuArray[4][4].setForeground(Color.white);
-		masuArray[3][4].setText("●");
-		masuArray[3][4].setForeground(Color.black);
-		masuArray[4][3].setText("●");
-		masuArray[4][3].setForeground(Color.black);
+		this.masuArray[3][3].setText("●");
+		this.masuArray[3][3].setForeground(Color.white);//石の色
+		this.masuArray[4][4].setText("●");
+		this.masuArray[4][4].setForeground(Color.white);
+		this.masuArray[3][4].setText("●");
+		this.masuArray[3][4].setForeground(Color.black);
+		this.masuArray[4][3].setText("●");
+		this.masuArray[4][3].setForeground(Color.black);
 	}
 
 	public void changeTeban() {
-		if (teban == "black") {
-			teban = "white";
-		} else if (teban == "white") {
-			teban = "black";
+		if (this.teban == "black") {
+			this.teban = "white";
+		} else if (this.teban == "white") {
+			this.teban = "black";
 		}
 		updateLabelText();
 	}
@@ -189,16 +185,16 @@ public class Othello implements MouseListener {
 		//石の数の確認をし,石の数のテキストを更新する。
 		int tempBlackNum = 0;
 		int tempWhiteNum = 0;
-		for (String val : gameRecord.values()) {
+		for (String val : this.gameRecord.values()) {
 			if (val.equals("black")) {
 				tempBlackNum++;
 			} else if (val.equals("white")) {
 				tempWhiteNum++;
 			}
 		}
-		setBlackNum(tempBlackNum);
-		setWhiteNum(tempWhiteNum);
-		stoneNumLabel.setText("黒：" + getBlackNum() + "  " + "白：" + getWhiteNum());
+		this.blackNum = tempBlackNum;
+		this.whiteNum = tempWhiteNum;
+		getStoneNumLabel().setText("黒：" + this.blackNum + "  " + "白：" + this.whiteNum);
 	}
 
 	public void setGouhousyuArray() {
@@ -214,8 +210,8 @@ public class Othello implements MouseListener {
 		String checkMasu;
 		boolean existRivalStoneFlg;//ライバルの石が間に存在するか？
 
-		if (gouhousyuArray != null) {
-			gouhousyuArray.clear();//配列のリセット
+		if (this.gouhousyuArray != null) {
+			this.gouhousyuArray.clear();//配列のリセット
 		}
 		if (teban.equals("black")) {
 			switchArray = useBlackArray;
@@ -227,8 +223,8 @@ public class Othello implements MouseListener {
 			if (!(gameRecord.get(gameRecordKeys[i]).equals("None"))) {
 				continue;//合法手確認の対象のマスに石があれば抜ける
 			}
-			targetDan = Integer.parseInt(gameRecordKeys[i].substring(1, 2));//二文字目の段の切り出し
-			targetSuji = Integer.parseInt(gameRecordKeys[i].substring(3, 4));//四文字目の筋の切り出し
+			targetDan = Integer.parseInt(this.gameRecordKeys[i].substring(1, 2));//二文字目の段の切り出し
+			targetSuji = Integer.parseInt(this.gameRecordKeys[i].substring(3, 4));//四文字目の筋の切り出し
 			for (int j = 0; j < allDirectionArray.length; j++) {
 				existRivalStoneFlg = false;//ライバルの石が間に存在しないフラグをFalseにする
 				checkDan = targetDan;//new Integer()//コピー
@@ -241,21 +237,21 @@ public class Othello implements MouseListener {
 						break;//盤外であれば抜ける
 					} else {
 						//盤内であれば
-						if (gameRecord.get(checkMasu).equals("None")) {
+						if (this.gameRecord.get(checkMasu).equals("None")) {
 							break;//一マス先に石がなければ抜ける
 						}
-						if ((existRivalStoneFlg == false) && (gameRecord.get(checkMasu).equals(switchArray[0]))) {
+						if ((existRivalStoneFlg == false) && (this.gameRecord.get(checkMasu).equals(switchArray[0]))) {
 							//[0]:自石
 							break;//#間にライバルの石がない＆一マス先が自石ならぬける
 						}
-						if (gameRecord.get(checkMasu).equals(switchArray[1])) {
+						if (this.gameRecord.get(checkMasu).equals(switchArray[1])) {
 							//[1]:ライバルの石
 							existRivalStoneFlg = true;
 							continue;//マスの確認方向を一マス伸ばし処理を続ける
 						}
-						if ((existRivalStoneFlg) && (gameRecord.get(checkMasu).equals(switchArray[0]))) {
+						if ((existRivalStoneFlg) && (this.gameRecord.get(checkMasu).equals(switchArray[0]))) {
 							//[0]:自石
-							tempGouhousyuArray.add(gameRecordKeys[i]);//合法手を配列に格納
+							tempGouhousyuArray.add(this.gameRecordKeys[i]);//合法手を配列に格納
 							existRivalStoneFlg = false;//フラグをFalseに戻す
 							break;//ループを抜ける
 						}
@@ -263,7 +259,7 @@ public class Othello implements MouseListener {
 				}
 			}
 		}
-		gouhousyuArray = new ArrayList<String>(new HashSet<>(tempGouhousyuArray));//配列から重複した値を削除する
+		this.gouhousyuArray = new ArrayList<String>(new HashSet<>(tempGouhousyuArray));//配列から重複した値を削除する
 	}
 
 	public void turnOverStone(String startingPoint) {
@@ -272,16 +268,16 @@ public class Othello implements MouseListener {
 		//8方向探索用配列
 		int[][] allDirectionArray = { { -1, 0 }, { -1, 1 }, { 0, 1 }, { 1, 1 }, { 1, 0 }, { 1, -1 }, { 0, -1 },
 				{ -1, -1 } };//8方向(上,右上,右,右下,下,左下,左,左上)
-		boolean turnOverFlg;//反転動作確認に使用
 		List<String> turnOverStoneArray = new ArrayList<String>();//反転対象配列
+		boolean turnOverFlg;//反転動作確認に使用
 		String[] switchArray = null;//手番により切り替え
 		String[] useBlackArray = { "black", "white" };//手番黒用
 		String[] useWhiteArray = { "white", "black" };//手番白用
 		int targetDan, targetSuji, checkDan, checkSuji, targetX, targetY;
 		String checkMasu;
-		if (teban.equals("black")) {
+		if (this.teban.equals("black")) {
 			switchArray = useBlackArray;
-		} else if (teban.equals("white")) {
+		} else if (this.teban.equals("white")) {
 			switchArray = useWhiteArray;
 		}
 		//石の反転
@@ -300,22 +296,22 @@ public class Othello implements MouseListener {
 					break;//盤外であれば抜ける
 				}
 				//盤内であれば
-				if (gameRecord.get(checkMasu).equals("None")) {
+				if (this.gameRecord.get(checkMasu).equals("None")) {
 					turnOverStoneArray.clear();
 					break;//一マス先に石がなければ抜ける
 				}
-				if ((turnOverFlg == false) && (gameRecord.get(checkMasu).equals(switchArray[0]))) {
+				if ((turnOverFlg == false) && (this.gameRecord.get(checkMasu).equals(switchArray[0]))) {
 					//[0]:自石
 					turnOverStoneArray.clear();
 					break;//間にライバルの石がない＆一マス先が自石ならぬける
 				}
-				if (gameRecord.get(checkMasu).equals(switchArray[1])) {
+				if (this.gameRecord.get(checkMasu).equals(switchArray[1])) {
 					//[1]:ライバルの石
 					turnOverFlg = true;
 					turnOverStoneArray.add(checkMasu);//反転対象の石が置かれているマスを配列に格納する
 					continue;//マスの確認方向を一マス伸ばし処理を続ける
 				}
-				if ((turnOverFlg) && (gameRecord.get(checkMasu).equals(switchArray[0]))) {
+				if ((turnOverFlg) && (this.gameRecord.get(checkMasu).equals(switchArray[0]))) {
 					//[0]:自石
 					//配列をもとに反転させる
 					System.out.println("反転対象配列：" + turnOverStoneArray);
@@ -323,13 +319,13 @@ public class Othello implements MouseListener {
 					for (int i = 0; i < turnOverStoneArray.size(); i++) {
 						targetY = Integer.parseInt(turnOverStoneArray.get(i).substring(1, 2));//二文字目の段の切り出し
 						targetX = Integer.parseInt(turnOverStoneArray.get(i).substring(3, 4));//四文字目の筋の切り出し
-						masuArray[targetX - 1][targetY - 1].setText("●");
+						this.masuArray[targetX - 1][targetY - 1].setText("●");
 						if (switchArray[0].equals("black")) {
-							masuArray[targetX - 1][targetY - 1].setForeground(Color.black);
+							this.masuArray[targetX - 1][targetY - 1].setForeground(Color.black);
 						} else if (switchArray[0].equals("white")) {
-							masuArray[targetX - 1][targetY - 1].setForeground(Color.white);
+							this.masuArray[targetX - 1][targetY - 1].setForeground(Color.white);
 						}
-						gameRecord.replace(turnOverStoneArray.get(i), switchArray[0]);//盤面情報の更新
+						this.gameRecord.replace(turnOverStoneArray.get(i), switchArray[0]);//盤面情報の更新
 					}
 					turnOverFlg = false;//フラグをFalseに戻す
 					break;//ループを抜ける
@@ -346,35 +342,35 @@ public class Othello implements MouseListener {
 		int tempNoneNum = 0;
 		int tempBlackNum = 0;
 		int tempWhiteNum = 0;
-		for (int i = 0; i < gameRecordKeys.length; i++) {
-			if (gameRecord.get(gameRecordKeys[i]).equals("None")) {
+		for (int i = 0; i < this.gameRecordKeys.length; i++) {
+			if (this.gameRecord.get(this.gameRecordKeys[i]).equals("None")) {
 				tempNoneNum++;
-			} else if (gameRecord.get(gameRecordKeys[i]).equals("black")) {
+			} else if (this.gameRecord.get(this.gameRecordKeys[i]).equals("black")) {
 				tempBlackNum++;
-			} else if (gameRecord.get(gameRecordKeys[i]).equals("white")) {
+			} else if (this.gameRecord.get(this.gameRecordKeys[i]).equals("white")) {
 				tempWhiteNum++;
 			}
 		}
 		if ((passEnd == 1) || (tempNoneNum == 0) || (tempBlackNum == 0) || (tempWhiteNum == 0)) {
-			gameEndFlg = true;//決着フラグ
+			this.gameEndFlg = true;//決着フラグ
 		}
-		if (passEnd == 1){
+		if (passEnd == 1) {
 			System.out.println("連続パスによりゲームを終了します。");
 		}
-		if (gameEndFlg) {
+		if (this.gameEndFlg) {
 			if ((tempWhiteNum == 0) || (tempBlackNum > tempWhiteNum)) {
-				gameInfoLabel.setText("黒の勝ちです。");
-				gameInfoLabel.setBackground(Color.white);//バックグラウンドカラーの設定
+				this.gameInfoLabel.setText("黒の勝ちです。");
+				this.gameInfoLabel.setBackground(Color.white);//バックグラウンドカラーの設定
 				return;
 			}
 			if ((tempBlackNum == 0) || (tempBlackNum < tempWhiteNum)) {
-				gameInfoLabel.setText("白の勝ちです。");
-				gameInfoLabel.setBackground(Color.white);//バックグラウンドカラーの設定
+				this.gameInfoLabel.setText("白の勝ちです。");
+				this.gameInfoLabel.setBackground(Color.white);//バックグラウンドカラーの設定
 				return;
 			}
 			if (tempBlackNum == tempWhiteNum) {
-				gameInfoLabel.setText("引き分けです。");
-				gameInfoLabel.setBackground(Color.white);//バックグラウンドカラーの設定
+				this.gameInfoLabel.setText("引き分けです。");
+				this.gameInfoLabel.setBackground(Color.white);//バックグラウンドカラーの設定
 				return;
 			}
 		}
@@ -382,21 +378,21 @@ public class Othello implements MouseListener {
 
 	public void passButtonEvent() {
 		System.out.println("パスボタンを押しました。");
-		if(gameEndFlg){
+		if (this.gameEndFlg) {
 			return;
 		}
 		setGouhousyuArray();
-		if(gouhousyuArray.size()!=0){
+		if (this.gouhousyuArray.size() != 0) {
 			System.out.println("合法手があります。パス出来ません。");
 			return;
-		}else{
-			gameInfoLabel.setText("");
-			if(passFlg) {
+		} else {
+			this.gameInfoLabel.setText("");
+			if (this.passFlg) {
 				//連続パスにより終了
 				winLoseJudgment(1);
 				return;
-			}else {
-				passFlg=true;
+			} else {
+				this.passFlg = true;
 				changeTeban();
 			}
 		}
@@ -404,17 +400,17 @@ public class Othello implements MouseListener {
 
 	@Override
 	public void mouseClicked(MouseEvent e) {
-		if(gameEndFlg) {
+		if (this.gameEndFlg) {
 			//決着がついている。
 			return;
 		}
 		setGouhousyuArray();//手番の合法手をセットする。
-		if(gouhousyuArray.size()==0){
+		if (this.gouhousyuArray.size() == 0) {
 			System.out.println("合法手がありません。パスしてください。");
-			gameInfoLabel.setText("パスしてください。");
+			this.gameInfoLabel.setText("パスしてください。");
 			return;
 		}
-		System.out.println("合法手" + gouhousyuArray);
+		System.out.println("合法手" + this.gouhousyuArray);
 		Point point = e.getPoint();
 		//System.out.println("p：" + point);
 		//x:52～123,125～196,198～269,271～342,344～415,417～488,490～561,563～634
@@ -460,22 +456,22 @@ public class Othello implements MouseListener {
 			clickY = "0";
 		}
 		if ((clickX.equals("0")) || (clickY.equals("0"))) {
-			currentMasu = "盤外";//盤外
+			this.currentMasu = "盤外";//盤外
 		} else {
-			currentMasu = "d" + clickY + "s" + clickX;
+			this.currentMasu = "d" + clickY + "s" + clickX;
 		}
-		System.out.println("クリックしたマス：" + currentMasu);
+		System.out.println("クリックしたマス：" + this.currentMasu);
 		//合法手確認
-		if (gouhousyuArray.contains(currentMasu)) {
-			masuArray[Integer.parseInt(clickX) - 1][Integer.parseInt(clickY) - 1].setText("●");
-			if (teban.equals("black")) {
-				masuArray[Integer.parseInt(clickX) - 1][Integer.parseInt(clickY) - 1].setForeground(Color.black);
-			} else if (teban.equals("white")) {
-				masuArray[Integer.parseInt(clickX) - 1][Integer.parseInt(clickY) - 1].setForeground(Color.white);
+		if (this.gouhousyuArray.contains(this.currentMasu)) {
+			this.masuArray[Integer.parseInt(clickX) - 1][Integer.parseInt(clickY) - 1].setText("●");
+			if (this.teban.equals("black")) {
+				this.masuArray[Integer.parseInt(clickX) - 1][Integer.parseInt(clickY) - 1].setForeground(Color.black);
+			} else if (this.teban.equals("white")) {
+				this.masuArray[Integer.parseInt(clickX) - 1][Integer.parseInt(clickY) - 1].setForeground(Color.white);
 			}
-			gameRecord.replace(currentMasu, teban);//盤面情報の更新
-			turnOverStone(currentMasu);//石の反転
-			passFlg=false;
+			this.gameRecord.replace(this.currentMasu, this.teban);//盤面情報の更新
+			turnOverStone(this.currentMasu);//石の反転
+			this.passFlg = false;
 			changeTeban();//手番の交代
 			winLoseJudgment(0);//決着が着いているか？
 		} else {
@@ -500,8 +496,6 @@ public class Othello implements MouseListener {
 	public void mouseExited(MouseEvent e) {
 	}
 
-
-
 	public Map<String, String> getGameRecord() {
 		return gameRecord;
 	}
@@ -513,7 +507,6 @@ public class Othello implements MouseListener {
 	public String[] getGameRecordKeys() {
 		return gameRecordKeys;
 	}
-
 
 	public List<String> getGouhousyuArray() {
 		return gouhousyuArray;
@@ -610,7 +603,4 @@ public class Othello implements MouseListener {
 	public void setPassFlg(boolean passFlg) {
 		this.passFlg = passFlg;
 	}
-
-
-
 }
